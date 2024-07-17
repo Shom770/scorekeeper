@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex flex-col items-start justify-start w-4/5 gap-5">
+    <div>
+        <h1 class="text-4xl text-white font-black">
+            <span class="text-lime-500">score</span>keeper .
+        </h1>
+        <h1 class="text-sm text-lime-500 font-light">
+            Keep track of your pickleball scores.
+        </h1>
+    </div>
+    <div class="flex flex-col gap-3 mt-5 w-full">
+        <h1 class="text-3xl text-lime-500 font-black">
+            Report scores
+        </h1>
+        <div class="flex flex-col gap-2 w-full">
+            <h1 class="text-md text-white font-light">
+                Type of Game
+            </h1>
+            <div class="flex flex-row w-full gap-3">
+                {% if type_of_game == 'singles' %}
+                <button
+                    class="flex flex-row items-center justify-center gap-1 w-4/5 bg-lime-500 text-black px-8 py-3 rounded-lg font-bold border border-lime-500 focus:bg-black/75 focus:text-lime-500"
+                    onclick="location.href = '/?type=singles'; window.reload();">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+                      <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                    </svg>
+                    Singles
+                </button>
+                {% else %}
+                <button
+                    class="flex flex-row items-center justify-center gap-1 w-4/5 bg-black/75 px-8 py-3 rounded-lg font-bold text-lime-500 border border-lime-500 focus:bg-lime-500 focus:text-black"
+                    onclick="location.href = '/?type=singles'; window.reload();">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+                      <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                    </svg>
+                    Singles
+                </button>
+                {% endif %}
+
+                {% if type_of_game == 'doubles' %}
+                <button
+                    class="flex flex-row items-center justify-center gap-1 w-4/5 bg-lime-500 text-black px-8 py-3 rounded-lg font-bold border border-lime-500 focus:bg-black/75 focus:text-lime-500"
+                    onclick="location.href = '/?type=doubles'">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+                      <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5 -ml-3">
+                      <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                    </svg>
+                    Doubles
+                </button>
+                {% else %}
+                <button
+                    class="flex flex-row items-center justify-center gap-1 w-4/5 bg-black/75 px-8 py-3 rounded-lg font-bold text-lime-500 border border-lime-500 focus:bg-lime-500 focus:text-black"
+                    onclick="location.href = '/?type=doubles'">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+                      <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5 -ml-3">
+                      <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                    </svg>
+                    Doubles
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="flex flex-col gap-2 w-full">
+            <h1 class="text-md text-white font-light">
+                Scores per Team
+            </h1>
+            <div class="flex flex-row w-full h-48">
+                <div class="flex flex-col w-[35%]">
+                    <div class="relative flex flex-row items-center justify-center bg-red-500/25 border h-1/2 w-full z-10">
+                        <div class="absolute left-3 {{ '' if type_of_game == 'doubles' else 'top-20' }} flex flex-row items-center justify-center overflow-visible">
+                            <div class="flex items-center justify-center w-8 h-10 bg-rose-500 rounded-l-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
+                                  <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input id="teamOnePlayerOne" class="w-24 h-10 rounded-r-lg border border-2 border-l-0 border-rose-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 z-10 focus:outline-none" placeholder="Player 1"/>
+                        </div>
+                    </div>
+                    <div class="relative flex flex-row items-center justify-center bg-red-500/25 border h-1/2 w-full z-0">
+                        {% if type_of_game == 'doubles' %}
+                        <div class="absolute left-3 flex flex-row items-center justify-center overflow-visible">
+                            <div class="flex items-center justify-center w-8 h-10 bg-rose-500 rounded-l-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
+                                  <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input id="teamOnePlayerTwo" class="w-24 h-10 rounded-r-lg border border-2 border-l-0 border-rose-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 focus:outline-none" placeholder="Player 2"/>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex border h-full w-[30%] divide-x-4">
+                    <div class="bg-red-500/25 w-[48%] h-full"></div>
+                    <div class="bg-blue-500/25 w-[52%] h-full"></div>
+                </div>
+                <div class="flex flex-col w-[35%] h-full">
+                    <div class="relative flex flex-row items-center justify-center bg-blue-500/25 border h-1/2 w-full z-10">
+                        <div class="absolute right-3 {{ '' if type_of_game == 'doubles' else 'top-20' }} flex flex-row-reverse items-center justify-center overflow-visible">
+                            <div class="flex items-center justify-center w-8 h-10 bg-blue-500 rounded-r-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
+                                  <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input id="teamTwoPlayerOne" class="w-24 h-10 rounded-l-lg border border-2 border-r-0 border-blue-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 text-right focus:outline-none" placeholder="Player 1"/>
+                        </div>
+                    </div>
+                    <div class="relative flex flex-row items-center justify-center bg-blue-500/25 border h-1/2 w-full z-0">
+                        {% if type_of_game == 'doubles' %}
+                        <div class="absolute right-3 flex flex-row-reverse items-center justify-center overflow-visible">
+                            <div class="flex items-center justify-center w-8 h-10 bg-blue-500 rounded-r-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
+                                  <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input id="teamTwoPlayerTwo" class="w-24 h-10 rounded-l-lg border border-2 border-r-0 border-blue-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 text-right focus:outline-none" placeholder="Player 2"/>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-row justify-between mt-1">
+                <input id="teamOneScore" class="bg-rose-500/25 border-2 border-rose-500 text-white w-[35%] py-2 rounded-lg text-md text-center font-black placeholder:font-light placeholder-rose-100/75 focus:outline-none" placeholder="Score"/>
+                <input id="teamTwoScore" class="bg-blue-500/25 border-2 border-blue-500 text-white w-[35%] py-2 rounded-lg text-md text-center font-black placeholder:font-light placeholder-blue-100/75 focus:outline-none" placeholder="Score"/>
+            </div>
+            <button class="bg-black/75 border border-2 border-lime-500 text-lime-500 focus:bg-lime-500 focus:text-black font-bold w-full h-[50px] rounded-lg mt-5" onclick="processScores()">
+                Submit Scores
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+    function processScores() {
+        if ('{{ type_of_game }}' == 'singles') {
+            var team_one_players = [document.getElementById("teamOnePlayerOne").value];
+            var team_two_players = [document.getElementById("teamTwoPlayerOne").value];
+        }
+        else {
+            var team_one_players = [document.getElementById("teamOnePlayerOne").value, document.getElementById("teamOnePlayerTwo").value];
+            var team_two_players = [document.getElementById("teamTwoPlayerOne").value, document.getElementById("teamTwoPlayerTwo").value];
+        }
+
+        var server_data = {
+            "team_one_players": team_one_players,
+            "team_two_players": team_two_players,
+            "team_one_score": +document.getElementById("teamOneScore").value,
+            "team_two_score": +document.getElementById("teamTwoScore").value
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/process_scores",
+            data: JSON.stringify(server_data),
+            contentType: "application/json",
+            dataType: 'json',
+            success: function (result) {
+                document.getElementById("teamOneScore").value = "";
+                document.getElementById("teamTwoScore").value = "";
+            }
+        })
+    }
+</script>
+{% endblock content %}
