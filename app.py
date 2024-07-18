@@ -24,7 +24,9 @@ def home():
 @app.route("/process_scores", methods=["POST"])
 def process_scores():
     data = request.get_json()
-    add_scores_to_database(**data)
+    if data["team_one_players"] and data["team_two_players"]:
+        add_scores_to_database(**data)
+
     return {"action": "Scores successfully added."}
 
 
