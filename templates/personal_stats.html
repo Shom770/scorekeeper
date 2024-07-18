@@ -1,0 +1,14 @@
+{% extends 'index.html' %}
+{% block section_content %}
+<div class="flex flex-row items-center gap-[5%] justify-start border-b-2 border-lime-500">
+    <button onclick="location.href = '/?type={{ type_of_game }}&section=report_scores'" class="bg-transparent text-lime-500 font-bold basis-[30%] py-2 text-xs">
+        Report Scores
+    </button>
+    <button onclick="location.href = '/?type={{ type_of_game }}&section=doubles_stats'" class="bg-transparent text-lime-500 text-black font-bold basis-[30%] py-2 text-xs">
+        Doubles Stats
+    </button>
+    <button onclick="location.href = '/?type={{ type_of_game }}&section=personal_stats'" class="rounded-t-lg bg-lime-500 text-black font-bold basis-[30%] py-2 text-xs">
+        Personal Stats
+    </button>
+</div>
+{% endblock section_content %}
