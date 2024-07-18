@@ -1,0 +1,4 @@
+pymongo[srv]
+flask~=2.2.2
+python-dotenv~=0.21.0
+waitress==2.2.1
