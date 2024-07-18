@@ -154,8 +154,10 @@
             contentType: "application/json",
             dataType: 'json',
             success: function (result) {
-                document.getElementById("teamOneScore").value = "";
-                document.getElementById("teamTwoScore").value = "";
+                if (result['action'] == 'success') {
+                    document.getElementById("teamOneScore").value = "";
+                    document.getElementById("teamTwoScore").value = "";
+                }
             }
         })
     }
