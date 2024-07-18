@@ -62,5 +62,5 @@ def stats_of_doubles_teams() -> dict:
         records[tuple(game["losers"]["names"])]["losses"] += 1
         records[tuple(game["losers"]["names"])]["total_points"] += game["losers"]["score"]
 
-    records = dict(sorted(records.items(), key=lambda pair: pair[1]["total_points"], reverse=True))
+    records = dict(sorted(records.items(), key=lambda pair: pair[1]["wins"], reverse=True))
     return {(key[0].title(), key[1].title()): value for key, value in records.items()}
