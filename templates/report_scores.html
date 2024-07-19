@@ -136,12 +136,12 @@
 <script>
     function processScores() {
         if ('{{ type_of_game }}' == 'singles') {
-            const team_one_players = [document.getElementById("teamOnePlayerOne").value];
-            const team_two_players = [document.getElementById("teamTwoPlayerOne").value];
+            var team_one_players = [document.getElementById("teamOnePlayerOne").value];
+            var team_two_players = [document.getElementById("teamTwoPlayerOne").value];
         }
         else {
-            const team_one_players = [document.getElementById("teamOnePlayerOne").value, document.getElementById("teamOnePlayerTwo").value];
-            const team_two_players = [document.getElementById("teamTwoPlayerOne").value, document.getElementById("teamTwoPlayerTwo").value];
+            var team_one_players = [document.getElementById("teamOnePlayerOne").value, document.getElementById("teamOnePlayerTwo").value];
+            var team_two_players = [document.getElementById("teamTwoPlayerOne").value, document.getElementById("teamTwoPlayerTwo").value];
         }
 
         var server_data = {
@@ -161,6 +161,11 @@
                 if (result['action'] == 'success') {
                     document.getElementById("teamOneScore").value = "";
                     document.getElementById("teamTwoScore").value = "";
+
+                    document.getElementById("teamOnePlayerOneElo").innerHTML = `${result['elo_of_team_one'][document.getElementById('teamOnePlayerOne').value.trim().toLowerCase()]} ELO`;
+                    document.getElementById("teamOnePlayerTwoElo").innerHTML = `${result['elo_of_team_one'][document.getElementById('teamOnePlayerTwo').value.trim().toLowerCase()]} ELO`;
+                    document.getElementById("teamTwoPlayerOneElo").innerHTML = `${result['elo_of_team_two'][document.getElementById('teamTwoPlayerOne').value.trim().toLowerCase()]} ELO`;
+                    document.getElementById("teamTwoPlayerTwoElo").innerHTML = `${result['elo_of_team_two'][document.getElementById('teamTwoPlayerTwo').value.trim().toLowerCase()]} ELO`;
                 }
             }
         })

@@ -32,15 +32,19 @@ def home():
 @app.route("/get_elo_rating", methods=["GET"])
 def get_elo_rating():
     name = request.args.get("name")
-    return {"elo_rating": latest_elo_ratings.get(name, "——")}
+    return {"elo_rating": round(latest_elo_ratings.get(name, "——"), 0)}
 
 
 @app.route("/process_scores", methods=["POST"])
 def process_scores():
+    global latest_elo_ratings
     data = request.get_json()
+
     if all(name for name in data["team_one_players"]) and all(name for name in data["team_two_players"]) and data["team_one_score"] >= 0 and data["team_two_score"] >= 0:
-        add_scores_to_database(**data)
-        return {"action": "success"}
+        elo_of_team_one, elo_of_team_two = add_scores_to_database(**data)
+        latest_elo_ratings = get_elo_ratings()
+
+        return {"action": "success", "elo_of_team_one": elo_of_team_one, "elo_of_team_two": elo_of_team_two}
     else:
         return {"action": "incorrect data"}
 

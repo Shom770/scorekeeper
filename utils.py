@@ -12,14 +12,9 @@ client = MongoClient(MONGO_URI)
 database = client["scorekeeper"]
 
 
-def _k_factor_by_elo_rating(elo_rating: int) -> float:
+def _dynamic_k_factor(games_played: int, expected_new_games: int = 10) -> float:
     """Calculates the appropriate K factor based on the elo rating."""
-    if elo_rating > 1800:
-        return 16
-    elif elo_rating > 1400:
-        return 32
-    else:
-        return 64
+    return 800 / (games_played + expected_new_games)
 
 
 def add_scores_to_database(
@@ -27,15 +22,13 @@ def add_scores_to_database(
     team_two_players: list,
     team_one_score: int,
     team_two_score: int
-) -> None:
+) -> tuple:
     """Adds the scores for each player accordingly to the database."""
     team_one_players = sorted(name.lower().strip() for name in team_one_players)
     team_two_players = sorted(name.lower().strip() for name in team_two_players)
-    print("entered func")
 
     scores = database["scores"]
     players = database["players"]
-    print("processed mongo")
 
     winners = team_one_players if team_one_score > team_two_score else team_two_players
     current_players = {data["name"]: data["elo_rating"] for data in players.find()}
@@ -44,7 +37,6 @@ def add_scores_to_database(
     for new_player in set(current_players.keys()).difference(team_one_players + team_two_players):
         players.insert_one({"name": new_player, "elo_rating": 1600})
 
-    print("added new players")
     # Calculate new ELO ratings
     elo_of_team_one = {player: current_players[player] for player in team_one_players}
     average_elo_of_team_one = sum(elo_of_team_one.values()) / len(elo_of_team_one.values())
@@ -60,18 +52,21 @@ def add_scores_to_database(
 
     # Adjust elo accordingly for each player on team one.
     for player in team_one_players:
+        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
+
         new_elo_rating = (
             elo_of_team_one[player]
-            + _k_factor_by_elo_rating(elo_of_team_one[player]) * (actual_score_of_team_one - expected_score_of_team_one)
+            + _dynamic_k_factor(games_played) * (actual_score_of_team_one - expected_score_of_team_one)
         )
-        print(player, new_elo_rating)
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
     # Adjust elo accordingly for each player on team two.
     for player in team_two_players:
+        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
+
         new_elo_rating = (
             elo_of_team_two[player]
-            + _k_factor_by_elo_rating(elo_of_team_two[player]) * (actual_score_of_team_two - expected_score_of_team_two)
+            + _dynamic_k_factor(games_played) * (actual_score_of_team_two - expected_score_of_team_two)
         )
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
@@ -86,6 +81,11 @@ def add_scores_to_database(
             "score": min(team_one_score, team_two_score)
         }
     })
+
+    return (
+        {name: round(elo, 0) for name, elo in elo_of_team_one.items()},
+        {name: round(elo, 0) for name, elo in elo_of_team_two.items()}
+    )
 
 
 def get_elo_ratings() -> dict:
@@ -115,9 +115,11 @@ def stats_of_each_player() -> dict:
     """Retrieves the stats of each player."""
     scores = database["scores"]
     players = database["players"]
+    all_players = {data["name"]: data["elo_rating"] for data in players.find()}
+
     records = defaultdict(lambda: {"wins": 0, "losses": 0, "total_points": 0})
 
-    for player in set(data["name"] for data in players.find()):
+    for player in set(all_players.keys()):
         games_won = list(scores.find({"winners.names": player}))
         games_lost = list(scores.find({"losers.names": player}))
         total_points = sum(
@@ -127,6 +129,7 @@ def stats_of_each_player() -> dict:
         records[player]["wins"] += len(games_won)
         records[player]["losses"] += len(games_lost)
         records[player]["total_points"] += total_points
+        records[player]["elo_rating"] = all_players[player]
 
-    records = dict(sorted(records.items(), key=lambda pair: (pair[1]["wins"], pair[1]["total_points"] / (pair[1]["wins"] + pair[1]["losses"])), reverse=True))
+    records = dict(sorted(records.items(), key=lambda pair: (pair[1]["elo_rating"], pair[1]["wins"], pair[1]["total_points"] / (pair[1]["wins"] + pair[1]["losses"])), reverse=True))
     return {key.title(): value for key, value in records.items()}
