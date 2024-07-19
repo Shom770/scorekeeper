@@ -12,9 +12,14 @@ client = MongoClient(MONGO_URI)
 database = client["scorekeeper"]
 
 
-def _dynamic_k_factor(games_played: int, expected_new_games: int = 10) -> float:
+def _dynamic_k_factor(elo_rating: float) -> float:
     """Calculates the appropriate K factor based on the elo rating."""
-    return 800 / (games_played + expected_new_games)
+    if elo_rating >= 1900:
+        return 16
+    elif 1400 < elo_rating < 1900:
+        return 24
+    else:
+        return 32
 
 
 def add_scores_to_database(
@@ -34,8 +39,9 @@ def add_scores_to_database(
     current_players = {data["name"]: data["elo_rating"] for data in players.find()}
 
     # Add new players to the list if they exist
-    for new_player in set(current_players.keys()).difference(team_one_players + team_two_players):
+    for new_player in {player for player in team_one_players + team_two_players if player not in current_players}:
         players.insert_one({"name": new_player, "elo_rating": 1600})
+        current_players[new_player] = 1600
 
     # Calculate new ELO ratings
     elo_of_team_one = {player: current_players[player] for player in team_one_players}
@@ -52,11 +58,9 @@ def add_scores_to_database(
 
     # Adjust elo accordingly for each player on team one.
     for player in team_one_players:
-        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
-
         new_elo_rating = (
             elo_of_team_one[player]
-            + _dynamic_k_factor(games_played) * (actual_score_of_team_one - expected_score_of_team_one)
+            + _dynamic_k_factor(elo_of_team_one[player]) * (actual_score_of_team_one - expected_score_of_team_one)
         )
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
@@ -64,11 +68,9 @@ def add_scores_to_database(
 
     # Adjust elo accordingly for each player on team two.
     for player in team_two_players:
-        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
-
         new_elo_rating = (
             elo_of_team_two[player]
-            + _dynamic_k_factor(games_played) * (actual_score_of_team_two - expected_score_of_team_two)
+            + _dynamic_k_factor(elo_of_team_two[player]) * (actual_score_of_team_two - expected_score_of_team_two)
         )
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
