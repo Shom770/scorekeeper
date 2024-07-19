@@ -31,9 +31,11 @@ def add_scores_to_database(
     """Adds the scores for each player accordingly to the database."""
     team_one_players = sorted(name.lower().strip() for name in team_one_players)
     team_two_players = sorted(name.lower().strip() for name in team_two_players)
+    print("entered func")
 
     scores = database["scores"]
     players = database["players"]
+    print("processed mongo")
 
     winners = team_one_players if team_one_score > team_two_score else team_two_players
     current_players = {data["name"]: data["elo_rating"] for data in players.find()}
@@ -42,6 +44,7 @@ def add_scores_to_database(
     for new_player in set(current_players.keys()).difference(team_one_players + team_two_players):
         players.insert_one({"name": new_player, "elo_rating": 1600})
 
+    print("added new players")
     # Calculate new ELO ratings
     elo_of_team_one = {player: current_players[player] for player in team_one_players}
     average_elo_of_team_one = sum(elo_of_team_one.values()) / len(elo_of_team_one.values())
@@ -61,6 +64,7 @@ def add_scores_to_database(
             elo_of_team_one[player]
             + _k_factor_by_elo_rating(elo_of_team_one[player]) * (actual_score_of_team_one - expected_score_of_team_one)
         )
+        print(player, new_elo_rating)
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
     # Adjust elo accordingly for each player on team two.
