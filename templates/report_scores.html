@@ -167,7 +167,7 @@
     }
 
     function insertEloRating(inputId, textId) {
-        const name = document.getElementById(inputId).value.trim();
+        const name = document.getElementById(inputId).value.trim().toLowerCase();
 
         $.ajax({
             type: "GET",
