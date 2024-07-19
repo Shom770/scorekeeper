@@ -19,8 +19,8 @@ def add_scores_to_database(
     team_two_score: int
 ) -> None:
     """Adds the scores for each player accordingly to the database."""
-    team_one_players = sorted(name.lower() for name in team_one_players)
-    team_two_players = sorted(name.lower() for name in team_two_players)
+    team_one_players = sorted(name.lower().strip() for name in team_one_players)
+    team_two_players = sorted(name.lower().strip() for name in team_two_players)
 
     scores = database["scores"]
     players = database["players"]
@@ -62,5 +62,5 @@ def stats_of_doubles_teams() -> dict:
         records[tuple(game["losers"]["names"])]["losses"] += 1
         records[tuple(game["losers"]["names"])]["total_points"] += game["losers"]["score"]
 
-    records = dict(sorted(records.items(), key=lambda pair: pair[1]["wins"], reverse=True))
+    records = dict(sorted(records.items(), key=lambda pair: (pair[1]["wins"], pair[1]["total_points"] / (pair[1]["wins"] + pair[1]["losses"])), reverse=True))
     return {(key[0].title(), key[1].title()): value for key, value in records.items()}
