@@ -12,9 +12,14 @@ client = MongoClient(MONGO_URI)
 database = client["scorekeeper"]
 
 
-def _dynamic_k_factor(games_played: int, expected_new_games: int = 10) -> float:
+def _k_factor_by_elo_rating(elo_rating: int) -> float:
     """Calculates the appropriate K factor based on the elo rating."""
-    return 800 / (games_played + expected_new_games)
+    if elo_rating > 1800:
+        return 16
+    elif elo_rating > 1400:
+        return 32
+    else:
+        return 64
 
 
 def add_scores_to_database(
@@ -52,21 +57,17 @@ def add_scores_to_database(
 
     # Adjust elo accordingly for each player on team one.
     for player in team_one_players:
-        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
-
         new_elo_rating = (
             elo_of_team_one[player]
-            + _dynamic_k_factor(games_played) * (actual_score_of_team_one - expected_score_of_team_one)
+            + _k_factor_by_elo_rating(elo_of_team_one[player]) * (actual_score_of_team_one - expected_score_of_team_one)
         )
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
     # Adjust elo accordingly for each player on team two.
     for player in team_two_players:
-        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
-
         new_elo_rating = (
             elo_of_team_two[player]
-            + _dynamic_k_factor(games_played) * (actual_score_of_team_two - expected_score_of_team_two)
+            + _k_factor_by_elo_rating(elo_of_team_two[player]) * (actual_score_of_team_two - expected_score_of_team_two)
         )
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
