@@ -64,3 +64,24 @@ def stats_of_doubles_teams() -> dict:
 
     records = dict(sorted(records.items(), key=lambda pair: (pair[1]["wins"], pair[1]["total_points"] / (pair[1]["wins"] + pair[1]["losses"])), reverse=True))
     return {(key[0].title(), key[1].title()): value for key, value in records.items()}
+
+
+def stats_of_each_player() -> dict:
+    """Retrieves the stats of each player."""
+    scores = database["scores"]
+    players = database["players"]
+    records = defaultdict(lambda: {"wins": 0, "losses": 0, "total_points": 0})
+
+    for player in set(players.find()[0]["all_players"]):
+        games_won = list(scores.find({"winners.names": player}))
+        games_lost = list(scores.find({"losers.names": player}))
+        total_points = sum(
+            [obj["winners"]["score"] for obj in games_won] + [obj["losers"]["score"] for obj in games_lost]
+        )
+
+        records[player]["wins"] += len(games_won)
+        records[player]["losses"] += len(games_lost)
+        records[player]["total_points"] += total_points
+
+    records = dict(sorted(records.items(), key=lambda pair: (pair[1]["wins"], pair[1]["total_points"] / (pair[1]["wins"] + pair[1]["losses"])), reverse=True))
+    return {key.title(): value for key, value in records.items()}

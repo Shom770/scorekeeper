@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from utils import add_scores_to_database, stats_of_doubles_teams
+from utils import add_scores_to_database, stats_of_doubles_teams, stats_of_each_player
 
 app = Flask(__name__)
 
@@ -18,7 +18,11 @@ def home():
             places_to_colors={1: "yellow-600", 2: "stone-400", 3: "amber-800"}
         )
     else:
-        return render_template("personal_stats.html")
+        return render_template(
+            "personal_stats.html",
+            personal_stats=enumerate(stats_of_each_player().items(), start=1),
+            places_to_colors={1: "yellow-600", 2: "stone-400", 3: "amber-800"}
+        )
 
 
 @app.route("/process_scores", methods=["POST"])
