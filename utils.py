@@ -12,6 +12,11 @@ client = MongoClient(MONGO_URI)
 database = client["scorekeeper"]
 
 
+def _dynamic_k_factor(games_played: int, expected_new_games: int = 10) -> float:
+    """Calculates the appropriate K factor based on the elo rating."""
+    return 800 / (games_played + expected_new_games)
+
+
 def add_scores_to_database(
     team_one_players: list,
     team_two_players: list,
@@ -26,13 +31,44 @@ def add_scores_to_database(
     players = database["players"]
 
     winners = team_one_players if team_one_score > team_two_score else team_two_players
-    current_players = players.find()[0]["all_players"]
+    current_players = {data["name"]: data["elo_rating"] for data in players.find()}
 
     # Add new players to the list if they exist
-    players.update_one(
-        {"all_players": current_players},
-        {"$set": {"all_players": list(set(current_players).union(team_one_players + team_two_players))}}
-    )
+    for new_player in set(current_players.keys()).difference(team_one_players + team_two_players):
+        players.insert_one({"name": new_player, "elo_rating": 1600})
+
+    # Calculate new ELO ratings
+    elo_of_team_one = {player: current_players[player] for player in team_one_players}
+    average_elo_of_team_one = sum(elo_of_team_one.values()) / len(elo_of_team_one.values())
+
+    elo_of_team_two = {player: current_players[player] for player in team_two_players}
+    average_elo_of_team_two = sum(elo_of_team_two.values()) / len(elo_of_team_two.values())
+
+    expected_score_of_team_one = 1 / (1 + 10 ** ((average_elo_of_team_two - average_elo_of_team_one) / 400))
+    expected_score_of_team_two = 1 / (1 + 10 ** ((average_elo_of_team_one - average_elo_of_team_two) / 400))
+
+    actual_score_of_team_one = int(team_one_score > team_two_score)
+    actual_score_of_team_two = int(team_two_score > team_one_score)
+
+    # Adjust elo accordingly for each player on team one.
+    for player in team_one_players:
+        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
+
+        new_elo_rating = (
+            elo_of_team_one[player]
+            + _dynamic_k_factor(games_played) * (actual_score_of_team_one - expected_score_of_team_one)
+        )
+        players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
+
+    # Adjust elo accordingly for each player on team two.
+    for player in team_two_players:
+        games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
+
+        new_elo_rating = (
+            elo_of_team_two[player]
+            + _dynamic_k_factor(games_played) * (actual_score_of_team_two - expected_score_of_team_two)
+        )
+        players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
     # Insert scores
     scores.insert_one({
@@ -45,6 +81,10 @@ def add_scores_to_database(
             "score": min(team_one_score, team_two_score)
         }
     })
+
+
+def get_elo_ratings() -> dict:
+    return {data["name"]: data["elo_rating"] for data in database["players"].find()}
 
 
 def stats_of_doubles_teams() -> dict:
@@ -72,7 +112,7 @@ def stats_of_each_player() -> dict:
     players = database["players"]
     records = defaultdict(lambda: {"wins": 0, "losses": 0, "total_points": 0})
 
-    for player in set(players.find()[0]["all_players"]):
+    for player in set(data["name"] for data in players.find()):
         games_won = list(scores.find({"winners.names": player}))
         games_lost = list(scores.find({"losers.names": player}))
         total_points = sum(

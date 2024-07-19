@@ -71,23 +71,25 @@
         <div class="flex flex-col w-[35%]">
             <div class="relative flex flex-row items-center justify-center bg-red-500/25 border h-1/2 w-full z-10">
                 <div class="absolute left-3 {{ '' if type_of_game == 'doubles' else 'top-20' }} flex flex-row items-center justify-center overflow-visible">
-                    <div class="flex items-center justify-center w-8 h-10 bg-rose-500 rounded-l-lg">
+                    <div class="flex items-center justify-center w-8 h-12 bg-rose-500 rounded-l-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
                           <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input id="teamOnePlayerOne" class="w-24 h-10 rounded-l-none rounded-r-lg border border-2 border-l-0 border-rose-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 z-10 focus:outline-none" placeholder="Player 1"/>
+                    <input id="teamOnePlayerOne" class="w-24 h-12 rounded-l-none rounded-r-lg border border-2 border-l-0 border-rose-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 pb-3 z-10 focus:outline-none" placeholder="Player 1" onfocusout="insertEloRating('teamOnePlayerOne', 'teamOnePlayerOneElo')"/>
+                    <p id="teamOnePlayerOneElo" class="absolute text-[0.65rem] text-white/50 font-light left-8 px-2.5 top-6 z-10">—— ELO</p>
                 </div>
             </div>
             <div class="relative flex flex-row items-center justify-center bg-red-500/25 border h-1/2 w-full z-0">
                 {% if type_of_game == 'doubles' %}
                 <div class="absolute left-3 flex flex-row items-center justify-center overflow-visible">
-                    <div class="flex items-center justify-center w-8 h-10 bg-rose-500 rounded-l-lg">
+                    <div class="flex items-center justify-center w-8 h-12 bg-rose-500 rounded-l-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
                           <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input id="teamOnePlayerTwo" class="w-24 h-10 rounded-l-none rounded-r-lg border border-2 border-l-0 border-rose-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 focus:outline-none" placeholder="Player 2"/>
+                    <input id="teamOnePlayerTwo" class="w-24 h-12 rounded-l-none rounded-r-lg border border-2 border-l-0 border-rose-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 pb-3 z-10 focus:outline-none" placeholder="Player 2" onfocusout="insertEloRating('teamOnePlayerTwo', 'teamOnePlayerTwoElo')"/>
+                    <p id="teamOnePlayerTwoElo" class="absolute text-[0.65rem] text-white/50 font-light left-8 px-2.5 top-6 z-10">—— ELO</p>
                 </div>
                 {% endif %}
             </div>
@@ -99,23 +101,25 @@
         <div class="flex flex-col w-[35%] h-full">
             <div class="relative flex flex-row items-center justify-center bg-blue-500/25 border h-1/2 w-full z-10">
                 <div class="absolute right-3 {{ '' if type_of_game == 'doubles' else 'top-20' }} flex flex-row-reverse items-center justify-center overflow-visible">
-                    <div class="flex items-center justify-center w-8 h-10 bg-blue-500 rounded-r-lg">
+                    <div class="flex items-center justify-center w-8 h-12 bg-blue-500 rounded-r-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
                           <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input id="teamTwoPlayerOne" class="w-24 h-10 rounded-r-none rounded-l-lg border border-2 border-r-0 border-blue-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 text-right focus:outline-none" placeholder="Player 1"/>
+                    <input id="teamTwoPlayerOne" class="w-24 h-12 rounded-r-none rounded-l-lg border border-2 border-r-0 border-blue-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 pb-3 text-right focus:outline-none" placeholder="Player 1" onfocusout="insertEloRating('teamTwoPlayerOne', 'teamTwoPlayerOneElo')"/>
+                    <p id="teamTwoPlayerOneElo" class="absolute text-[0.65rem] text-white/50 font-light right-8 px-2.5 top-6 z-10">—— ELO</p>
                 </div>
             </div>
             <div class="relative flex flex-row items-center justify-center bg-blue-500/25 border h-1/2 w-full z-0">
                 {% if type_of_game == 'doubles' %}
                 <div class="absolute right-3 flex flex-row-reverse items-center justify-center overflow-visible">
-                    <div class="flex items-center justify-center w-8 h-10 bg-blue-500 rounded-r-lg">
+                    <div class="flex items-center justify-center w-8 h-12 bg-blue-500 rounded-r-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0d1117" class="size-4">
                           <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input id="teamTwoPlayerTwo" class="w-24 h-10 rounded-r-none rounded-l-lg border border-2 border-r-0 border-blue-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 text-right focus:outline-none" placeholder="Player 2"/>
+                    <input id="teamTwoPlayerTwo" class="w-24 h-12 rounded-r-none rounded-l-lg border border-2 border-r-0 border-blue-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 pb-3 text-right focus:outline-none" placeholder="Player 2" onfocusout="insertEloRating('teamTwoPlayerTwo', 'teamTwoPlayerTwoElo')"/>
+                    <p id="teamTwoPlayerTwoElo" class="absolute text-[0.65rem] text-white/50 font-light right-8 px-2.5 top-6 z-10">—— ELO</p>
                 </div>
                 {% endif %}
             </div>
@@ -132,12 +136,12 @@
 <script>
     function processScores() {
         if ('{{ type_of_game }}' == 'singles') {
-            var team_one_players = [document.getElementById("teamOnePlayerOne").value];
-            var team_two_players = [document.getElementById("teamTwoPlayerOne").value];
+            const team_one_players = [document.getElementById("teamOnePlayerOne").value];
+            const team_two_players = [document.getElementById("teamTwoPlayerOne").value];
         }
         else {
-            var team_one_players = [document.getElementById("teamOnePlayerOne").value, document.getElementById("teamOnePlayerTwo").value];
-            var team_two_players = [document.getElementById("teamTwoPlayerOne").value, document.getElementById("teamTwoPlayerTwo").value];
+            const team_one_players = [document.getElementById("teamOnePlayerOne").value, document.getElementById("teamOnePlayerTwo").value];
+            const team_two_players = [document.getElementById("teamTwoPlayerOne").value, document.getElementById("teamTwoPlayerTwo").value];
         }
 
         var server_data = {
@@ -158,6 +162,20 @@
                     document.getElementById("teamOneScore").value = "";
                     document.getElementById("teamTwoScore").value = "";
                 }
+            }
+        })
+    }
+
+    function insertEloRating(inputId, textId) {
+        const name = document.getElementById(inputId).value.trim();
+
+        $.ajax({
+            type: "GET",
+            url: `/get_elo_rating?name=${name}`,
+            dataType: 'json',
+            success: function (result) {
+                const elo_rating = result["elo_rating"];
+                document.getElementById(textId).innerHTML = `${elo_rating} ELO`
             }
         })
     }
