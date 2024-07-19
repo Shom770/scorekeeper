@@ -40,7 +40,12 @@ def process_scores():
     global latest_elo_ratings
     data = request.get_json()
 
-    if all(name for name in data["team_one_players"]) and all(name for name in data["team_two_players"]) and data["team_one_score"] >= 0 and data["team_two_score"] >= 0:
+    if (
+        all(name for name in data["team_one_players"])
+        and all(name for name in data["team_two_players"])
+        and data["team_one_score"] >= 0 and data["team_two_score"] >= 0
+        and (data["team_one_score"] != 0 and data["team_two_score"] != 0)
+    ):
         elo_of_team_one, elo_of_team_two = add_scores_to_database(**data)
         latest_elo_ratings = get_elo_ratings()
 
