@@ -162,9 +162,6 @@
                     document.getElementById("teamOneScore").value = "";
                     document.getElementById("teamTwoScore").value = "";
 
-                    console.log(result['elo_of_team_one']);
-                    console.log(document.getElementById('teamOnePlayerOne').value.trim().toLowerCase());
-
                     document.getElementById("teamOnePlayerOneElo").innerHTML = `${result['elo_of_team_one'][document.getElementById('teamOnePlayerOne').value.trim().toLowerCase()]} ELO`;
                     document.getElementById("teamOnePlayerTwoElo").innerHTML = `${result['elo_of_team_one'][document.getElementById('teamOnePlayerTwo').value.trim().toLowerCase()]} ELO`;
                     document.getElementById("teamTwoPlayerOneElo").innerHTML = `${result['elo_of_team_two'][document.getElementById('teamTwoPlayerOne').value.trim().toLowerCase()]} ELO`;

@@ -60,6 +60,8 @@ def add_scores_to_database(
         )
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
 
+        elo_of_team_one[player] = new_elo_rating
+
     # Adjust elo accordingly for each player on team two.
     for player in team_two_players:
         games_played = scores.count_documents({"$or": [{"winners.names": player}, {"losers.names": player}]})
@@ -69,6 +71,8 @@ def add_scores_to_database(
             + _dynamic_k_factor(games_played) * (actual_score_of_team_two - expected_score_of_team_two)
         )
         players.update_one({"name": player}, {"$set": {"name": player, "elo_rating": new_elo_rating}})
+
+        elo_of_team_two[player] = new_elo_rating
 
     # Insert scores
     scores.insert_one({
