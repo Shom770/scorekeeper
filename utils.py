@@ -159,7 +159,6 @@ def get_elo_ratings() -> dict:
 
 def stats_of_doubles_teams() -> dict:
     """Retrieves the stats of all teams that have played."""
-    scores = database["scores"]
     records = defaultdict(lambda: {"wins": 0, "losses": 0, "total_points": 0})
 
     for game in list(scores.find()):
