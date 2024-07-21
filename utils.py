@@ -183,8 +183,11 @@ def stats_of_each_player() -> dict:
     records = defaultdict(lambda: {"wins": 0, "losses": 0, "avg_points": 0})
 
     for player in set(all_players.keys()):
-        games_won = list(scores.find({"winners.names": player}))
-        games_lost = list(scores.find({"losers.names": player}))
+        games_played = list(scores.find({"$or": [{"winners.names": player}, {"losers.names": player}]}))
+
+        games_won = [game for game in games_played if player in game["winners"]["names"]]
+        games_lost = [game for game in games_played if player in game["losers"]["names"]]
+
         average_points = mean(
             [1 for _ in games_won] + [obj["losers"]["score"] / obj["winners"]["score"] for obj in games_lost]
         )
