@@ -13,7 +13,7 @@
 </div>
 
 <div class="flex flex-col gap-2">
-    <h1 class="text-white font-black text-xl">Best Players Teams</h1>
+    <h1 class="text-white font-black text-xl">Best Players</h1>
     <div class="flex flex-col gap-6 w-full h-[57.5vh] overflow-scroll">
         {% for idx, (name, stats) in personal_stats %}
         <div class="flex flex-col flex-none items-center justify-center w-full h-24">
@@ -53,7 +53,7 @@
                     </div>
                     <div class="flex flex-col justify-center basis-1/4 h-full text-white/[0.9]">
                         <h1 class="text-lg font-bold ml-5">
-                            {{ '%0.1f' % (stats["total_points"] / (stats["wins"] + stats["losses"])) }}
+                            {{ '%0.1f' % (stats["avg_points"] * 11) }}
                         </h1>
                         <h1 class="text-sm font-light ml-5 -mt-1">
                             ppg

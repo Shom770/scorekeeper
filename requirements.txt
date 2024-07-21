@@ -1,4 +1,6 @@
-pymongo[srv]
-flask~=2.2.2
+pymongo[srv]~=4.2.0
+flask~=2.1.2
 python-dotenv~=0.21.0
 gunicorn==22.0.0
+numpy~=1.23.4
+scipy~=1.9.3

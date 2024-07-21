@@ -90,6 +90,7 @@
                     </div>
                     <input id="teamOnePlayerTwo" class="w-24 h-12 rounded-l-none rounded-r-lg border border-2 border-l-0 border-rose-500 bg-[#0d1117] text-gray-200 text-xs font-medium px-2.5 pb-3 z-10 focus:outline-none" placeholder="Player 2" onfocusout="insertEloRating('teamOnePlayerTwo', 'teamOnePlayerTwoElo')"/>
                     <p id="teamOnePlayerTwoElo" class="absolute text-[0.65rem] text-white/50 font-light left-8 px-2.5 top-6 z-10">—— ELO</p>
+
                 </div>
                 {% endif %}
             </div>
@@ -163,9 +164,12 @@
                     document.getElementById("teamTwoScore").value = "";
 
                     document.getElementById("teamOnePlayerOneElo").innerHTML = `${result['elo_of_team_one'][document.getElementById('teamOnePlayerOne').value.trim().toLowerCase()]} ELO`;
-                    document.getElementById("teamOnePlayerTwoElo").innerHTML = `${result['elo_of_team_one'][document.getElementById('teamOnePlayerTwo').value.trim().toLowerCase()]} ELO`;
                     document.getElementById("teamTwoPlayerOneElo").innerHTML = `${result['elo_of_team_two'][document.getElementById('teamTwoPlayerOne').value.trim().toLowerCase()]} ELO`;
-                    document.getElementById("teamTwoPlayerTwoElo").innerHTML = `${result['elo_of_team_two'][document.getElementById('teamTwoPlayerTwo').value.trim().toLowerCase()]} ELO`;
+
+                    if ('{{ type_of_game }}' == 'doubles') {
+                        document.getElementById("teamOnePlayerTwoElo").innerHTML = `${result['elo_of_team_one'][document.getElementById('teamOnePlayerTwo').value.trim().toLowerCase()]} ELO`;
+                        document.getElementById("teamTwoPlayerTwoElo").innerHTML = `${result['elo_of_team_two'][document.getElementById('teamTwoPlayerTwo').value.trim().toLowerCase()]} ELO`;
+                    }
                 }
             }
         })

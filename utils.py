@@ -1,15 +1,36 @@
 from collections import defaultdict
 from os import environ
+from statistics import mean
+from typing import Optional
 
+import numpy as np
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from pymongo.collection import Collection
+from scipy.integrate import quad
+from scipy.stats import norm
 
 load_dotenv()
 
 MONGO_URI = f"mongodb+srv://shayaanwadkar:{environ.get('MONGODB_PASSWORD')}@cluster0.n0wdnpf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-client = MongoClient(MONGO_URI)
-database = client["scorekeeper"]
+client = None
+database = None
+scores: Optional[Collection] = None
+players: Optional[Collection] = None
+
+
+def connect_to_database() -> None:
+    """Connects to the database lazily so that the app doesn't take a long time to load."""
+    global client
+    global database
+    global scores
+    global players
+
+    client = MongoClient(MONGO_URI)
+    database = client["scorekeeper"]
+    scores = database["scores"]
+    players = database["players"]
 
 
 def _dynamic_k_factor(elo_rating: float) -> float:
@@ -32,26 +53,64 @@ def add_scores_to_database(
     team_one_players = sorted(name.lower().strip() for name in team_one_players)
     team_two_players = sorted(name.lower().strip() for name in team_two_players)
 
-    scores = database["scores"]
-    players = database["players"]
-
     winners = team_one_players if team_one_score > team_two_score else team_two_players
     current_players = {data["name"]: data["elo_rating"] for data in players.find()}
+    new_players = {player for player in team_one_players + team_two_players if player not in current_players}
 
     # Add new players to the list if they exist
-    for new_player in {player for player in team_one_players + team_two_players if player not in current_players}:
+    for new_player in new_players:
         players.insert_one({"name": new_player, "elo_rating": 1600})
         current_players[new_player] = 1600
 
-    # Calculate new ELO ratings
+    # Calculate new ELO ratings using the normal ELO method
     elo_of_team_one = {player: current_players[player] for player in team_one_players}
-    average_elo_of_team_one = sum(elo_of_team_one.values()) / len(elo_of_team_one.values())
-
     elo_of_team_two = {player: current_players[player] for player in team_two_players}
-    average_elo_of_team_two = sum(elo_of_team_two.values()) / len(elo_of_team_two.values())
 
-    expected_score_of_team_one = 1 / (1 + 10 ** ((average_elo_of_team_two - average_elo_of_team_one) / 400))
-    expected_score_of_team_two = 1 / (1 + 10 ** ((average_elo_of_team_one - average_elo_of_team_two) / 400))
+    distribution_of_team_one = [
+        np.array([
+            round(
+                (1 if player in game["winners"]["names"] else game["losers"]["score"] / game["winners"]["score"]),
+                2
+            )
+            for game in scores.find({"$or": [{"winners.names": player}, {"losers.names": player}]})
+        ])
+        for player in team_one_players
+    ]
+    distribution_of_team_two = [
+        np.array([
+            round(
+                (1 if player in game["winners"]["names"] else game["losers"]["score"] / game["winners"]["score"]),
+                2
+            )
+            for game in scores.find({"$or": [{"winners.names": player}, {"losers.names": player}]})
+        ])
+        for player in team_two_players
+    ]
+
+    if (
+        new_players
+        or any(len(dist) < 3 for dist in distribution_of_team_one)
+        or any(len(dist) < 3 for dist in distribution_of_team_two)
+    ):
+        average_elo_of_team_one = sum(elo_of_team_one.values()) / len(elo_of_team_one.values())
+        average_elo_of_team_two = sum(elo_of_team_two.values()) / len(elo_of_team_two.values())
+
+        expected_score_of_team_one = 1 / (1 + 10 ** ((average_elo_of_team_two - average_elo_of_team_one) / 400))
+        expected_score_of_team_two = 1 / (1 + 10 ** ((average_elo_of_team_one - average_elo_of_team_two) / 400))
+    else:
+        combined_mean_of_team_one = sum(dist.mean() for dist in distribution_of_team_one)
+        combined_std_of_team_one = sum(dist.std() ** 2 for dist in distribution_of_team_one) ** 0.5
+
+        combined_mean_of_team_two = sum(dist.mean() for dist in distribution_of_team_two)
+        combined_std_of_team_two = sum(dist.std() ** 2 for dist in distribution_of_team_two) ** 0.5
+
+        chance_of_winning_distribution = norm(
+            loc=combined_mean_of_team_one - combined_mean_of_team_two,
+            scale=(combined_std_of_team_one ** 2 + combined_std_of_team_two ** 2) ** 0.5
+        )
+
+        expected_score_of_team_one = quad(lambda x: chance_of_winning_distribution.pdf(x), 0, np.inf)[0]
+        expected_score_of_team_two = quad(lambda x: chance_of_winning_distribution.pdf(x), -np.inf, 0)[0]
 
     actual_score_of_team_one = int(team_one_score > team_two_score)
     actual_score_of_team_two = int(team_two_score > team_one_score)
@@ -108,10 +167,10 @@ def stats_of_doubles_teams() -> dict:
             continue
 
         records[tuple(game["winners"]["names"])]["wins"] += 1
-        records[tuple(game["winners"]["names"])]["total_points"] += game["winners"]["score"]
+        records[tuple(game["winners"]["names"])]["total_points"] += 1
 
         records[tuple(game["losers"]["names"])]["losses"] += 1
-        records[tuple(game["losers"]["names"])]["total_points"] += game["losers"]["score"]
+        records[tuple(game["losers"]["names"])]["total_points"] += game["losers"]["score"] / game["winners"]["score"]
 
     records = dict(sorted(records.items(), key=lambda pair: (pair[1]["wins"], pair[1]["total_points"] / (pair[1]["wins"] + pair[1]["losses"])), reverse=True))
     return {(key[0].title(), key[1].title()): value for key, value in records.items()}
@@ -119,23 +178,21 @@ def stats_of_doubles_teams() -> dict:
 
 def stats_of_each_player() -> dict:
     """Retrieves the stats of each player."""
-    scores = database["scores"]
-    players = database["players"]
     all_players = {data["name"]: data["elo_rating"] for data in players.find()}
 
-    records = defaultdict(lambda: {"wins": 0, "losses": 0, "total_points": 0})
+    records = defaultdict(lambda: {"wins": 0, "losses": 0, "avg_points": 0})
 
     for player in set(all_players.keys()):
         games_won = list(scores.find({"winners.names": player}))
         games_lost = list(scores.find({"losers.names": player}))
-        total_points = sum(
-            [obj["winners"]["score"] for obj in games_won] + [obj["losers"]["score"] for obj in games_lost]
+        average_points = mean(
+            [1 for _ in games_won] + [obj["losers"]["score"] / obj["winners"]["score"] for obj in games_lost]
         )
 
         records[player]["wins"] += len(games_won)
         records[player]["losses"] += len(games_lost)
-        records[player]["total_points"] += total_points
+        records[player]["avg_points"] = average_points
         records[player]["elo_rating"] = all_players[player]
 
-    records = dict(sorted(records.items(), key=lambda pair: (pair[1]["elo_rating"], pair[1]["wins"], pair[1]["total_points"] / (pair[1]["wins"] + pair[1]["losses"])), reverse=True))
+    records = dict(sorted(records.items(), key=lambda pair: (pair[1]["elo_rating"], pair[1]["wins"], pair[1]["avg_points"]), reverse=True))
     return {key.title(): value for key, value in records.items()}
