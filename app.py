@@ -15,28 +15,31 @@ latest_elo_ratings = {}
 @app.route("/")
 def home():
     type_of_game = request.args.get("type") or "doubles"
-    section = request.args.get("section", "report_scores")
+    return render_template("index.html", type_of_game=type_of_game)
 
-    if section == "report_scores":
-        return render_template("report_scores.html", type_of_game=type_of_game)
-    elif section == "doubles_stats":
-        if client is None:
-            connect_to_database()
 
-        return render_template(
-            "doubles_stats.html",
-            doubles_stats=enumerate(stats_of_doubles_teams().items(), start=1),
-            places_to_colors={1: "yellow-600", 2: "stone-400", 3: "amber-800"}
-        )
-    else:
-        if client is None:
-            connect_to_database()
+@app.route("/personal_stats")
+def personal_stats():
+    if client is None:
+        connect_to_database()
 
-        return render_template(
-            "personal_stats.html",
-            personal_stats=enumerate(stats_of_each_player().items(), start=1),
-            places_to_colors={1: "yellow-600", 2: "stone-400", 3: "amber-800"}
-        )
+    return render_template(
+        "personal_stats.html",
+        personal_stats=enumerate(stats_of_each_player().items(), start=1),
+        places_to_colors={1: "yellow-600", 2: "stone-400", 3: "amber-800"}
+    )
+
+
+@app.route("/doubles_stats")
+def doubles_stats():
+    if client is None:
+        connect_to_database()
+
+    return render_template(
+        "doubles_stats.html",
+        doubles_stats=enumerate(stats_of_doubles_teams().items(), start=1),
+        places_to_colors={1: "yellow-600", 2: "stone-400", 3: "amber-800"}
+    )
 
 
 @app.route("/get_elo_rating", methods=["GET"])

@@ -4,12 +4,43 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="-1" />
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.css" rel="stylesheet" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.6.1/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
-<div class="bg-slate-950 flex items-center justify-center w-full h-full">
+<nav class="flex items-center justify-center bg-slate-900 w-full h-[10vh]">
+    <div class="flex flex-wrap items-center justify-between p-4 w-[82%] h-full z-10">
+        <div class="flex items-center">
+            <h1 class="text-3xl text-white font-black">
+                <span class="text-lime-500">score</span>keeper
+            </h1>
+        </div>
+        <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
+            <span class="sr-only">Open main menu</span>
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+            </svg>
+        </button>
+        <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+          <ul class="font-medium flex flex-col p-2 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+            <li>
+              <a href="/" class="block py-2 text-white hover:text-lime-500" aria-current="page">Report Scores</a>
+            </li>
+            <li>
+              <a href="/personal_stats" class="block py-2 text-white hover:text-lime-500">Personal Stats</a>
+            </li>
+            <li>
+              <a href="/doubles_stats" class="block py-2 text-white hover:text-lime-500">Doubles Stats</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</nav>
+<div class="bg-slate-950 flex items-center justify-center w-full h-[90vh]">
     {% block content %}
 
     {% endblock content %}
