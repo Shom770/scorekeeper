@@ -66,11 +66,51 @@ def add_scores_to_database(
     elo_of_team_one = {player: current_players[player] for player in team_one_players}
     elo_of_team_two = {player: current_players[player] for player in team_two_players}
 
-    average_elo_of_team_one = sum(elo_of_team_one.values()) / len(elo_of_team_one.values())
-    average_elo_of_team_two = sum(elo_of_team_two.values()) / len(elo_of_team_two.values())
+    distribution_of_team_one = [
+        np.array([
+            round(
+                (1 if player in game["winners"]["names"] else game["losers"]["score"] / game["winners"]["score"]),
+                2
+            )
+            for game in scores.find({"$or": [{"winners.names": player}, {"losers.names": player}]})
+        ])
+        for player in team_one_players
+    ]
+    distribution_of_team_two = [
+        np.array([
+            round(
+                (1 if player in game["winners"]["names"] else game["losers"]["score"] / game["winners"]["score"]),
+                2
+            )
+            for game in scores.find({"$or": [{"winners.names": player}, {"losers.names": player}]})
+        ])
+        for player in team_two_players
+    ]
 
-    expected_score_of_team_one = 1 / (1 + 10 ** ((average_elo_of_team_two - average_elo_of_team_one) / 400))
-    expected_score_of_team_two = 1 / (1 + 10 ** ((average_elo_of_team_one - average_elo_of_team_two) / 400))
+    if (
+        new_players
+        or any(len(dist) < 3 for dist in distribution_of_team_one)
+        or any(len(dist) < 3 for dist in distribution_of_team_two)
+    ):
+        average_elo_of_team_one = sum(elo_of_team_one.values()) / len(elo_of_team_one.values())
+        average_elo_of_team_two = sum(elo_of_team_two.values()) / len(elo_of_team_two.values())
+
+        expected_score_of_team_one = 1 / (1 + 10 ** ((average_elo_of_team_two - average_elo_of_team_one) / 400))
+        expected_score_of_team_two = 1 / (1 + 10 ** ((average_elo_of_team_one - average_elo_of_team_two) / 400))
+    else:
+        combined_mean_of_team_one = sum(dist.mean() for dist in distribution_of_team_one)
+        combined_std_of_team_one = sum(dist.std() ** 2 for dist in distribution_of_team_one) ** 0.5
+
+        combined_mean_of_team_two = sum(dist.mean() for dist in distribution_of_team_two)
+        combined_std_of_team_two = sum(dist.std() ** 2 for dist in distribution_of_team_two) ** 0.5
+
+        chance_of_winning_distribution = norm(
+            loc=combined_mean_of_team_one - combined_mean_of_team_two,
+            scale=(combined_std_of_team_one ** 2 + combined_std_of_team_two ** 2) ** 0.5
+        )
+
+        expected_score_of_team_one = quad(lambda x: chance_of_winning_distribution.pdf(x), 0, np.inf)[0]
+        expected_score_of_team_two = quad(lambda x: chance_of_winning_distribution.pdf(x), -np.inf, 0)[0]
 
     actual_score_of_team_one = int(team_one_score > team_two_score)
     actual_score_of_team_two = int(team_two_score > team_one_score)
